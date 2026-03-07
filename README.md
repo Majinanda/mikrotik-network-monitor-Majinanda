@@ -47,3 +47,4 @@ npm start
 - Python 3.8+
 - Node.js & NPM (for project management)
 - MikroTik Router with API (8728) or SNMP enabled.
+# mikrotik-network-monitor-Majinanda
