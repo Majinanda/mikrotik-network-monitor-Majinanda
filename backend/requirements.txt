@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+routeros_api
+pydantic
+sqlalchemy
+requests
+python-dotenv
+passlib
+bcrypt==3.2.2
+python-jose[cryptography]
+python-multipart
+paramiko
+pysnmp>=5.0.0,<7.0.0

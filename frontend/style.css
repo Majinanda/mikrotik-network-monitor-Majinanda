@@ -1,0 +1,53 @@
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent; 
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1; 
+    border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: #475569; 
+}
+
+/* Dark mode map inversion */
+.dark .leaflet-layer,
+.dark .leaflet-control-zoom-in,
+.dark .leaflet-control-zoom-out,
+.dark .leaflet-control-attribution {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+/* Base dark mode adjustments since CDN Tailwind without config sometimes misses deep classes */
+.dark body {
+    background-color: #111827;
+    color: #f3f4f6;
+}
+.dark .bg-white {
+    background-color: #1f2937;
+}
+.dark .bg-gray-50 {
+    background-color: #111827;
+}
+.dark .border-gray-100 {
+    border-color: #374151;
+}
+.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #374151;
+}
+.dark input {
+    background-color: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+.dark .text-gray-900 {
+    color: #f9fafb;
+}
+.dark .text-gray-500 {
+    color: #9ca3af;
+}

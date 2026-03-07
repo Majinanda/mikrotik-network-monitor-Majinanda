@@ -1,0 +1,21 @@
+{
+  "name": "mikrotik-pppoe-dashboard",
+  "version": "1.0.0",
+  "description": "Real-time MikroTik PPPoE User & Traffic Monitoring Dashboard",
+  "main": "backend/main.py",
+  "scripts": {
+    "setup": "bash -c 'cd backend && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt'",
+    "start": "bash run.sh",
+    "dev": "bash run.sh",
+    "security-check": "bash scripts/pre-commit.sh"
+  },
+  "keywords": [
+    "mikrotik",
+    "routeros",
+    "pppoe",
+    "monitoring",
+    "snmp"
+  ],
+  "author": "",
+  "license": "MIT"
+}

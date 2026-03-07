@@ -1,0 +1,29 @@
+# System Files
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Python Files
+venv/
+bin/
+include/
+lib/
+lib64/
+share/
+pyvenv.cfg
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Application Data
+backend/mikrotik_dashboard.db
+backend/snmp_debug.log
+backend/*.log
+
+# Security & Secrets
+backend/.env
+.env
+*.pem
+*.key
+scripts/hooks/
