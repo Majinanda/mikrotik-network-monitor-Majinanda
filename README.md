@@ -8,7 +8,7 @@ Assume you are starting on a fresh Linux server:
 
 ```bash
 # 1. Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/Majinanda/mikrotik-network-monitor-Majinanda.git
 cd mikrotik-pppoe-dashboard
 
 # 2. Setup Environment
