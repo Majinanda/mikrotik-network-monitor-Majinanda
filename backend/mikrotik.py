@@ -355,9 +355,7 @@ def get_router_status(router):
             snmp_host = getattr(router, 'snmp_host', None) or router.host
             snmp_port = getattr(router, 'snmp_port', 161)
             community = getattr(router, 'snmp_community', 'public')
-            
-            # Use native snmpget to fetch sysDescr and sysUpTime
-            # sysDescr = 1.3.6.1.2.1.1.1.0, sysUpTime = 1.3.6.1.2.1.1.3.0
+            version = getattr(router, 'snmp_version', 'v2c')
             version_flag = '-v' + version.replace('v', '') if 'v' in version else '-v2c'
             cmd = ['snmpget', version_flag]
             
@@ -470,6 +468,7 @@ def get_router_interfaces(router):
             snmp_host = getattr(router, 'snmp_host', None) or router.host
             snmp_port = getattr(router, 'snmp_port', 161)
             community = getattr(router, 'snmp_community', 'public')
+            version = getattr(router, 'snmp_version', 'v2c')
             version_flag = '-v' + version.replace('v', '') if 'v' in version else '-v2c'
             walk_cmd = 'snmpwalk' if version_flag == '-v1' else 'snmpbulkwalk'
             
@@ -512,6 +511,7 @@ def get_router_traffic(router, override_iface=None):
         snmp_iface = override_iface if override_iface else (getattr(router, 'snmp_interface', 'all') or 'all')
         snmp_iface = snmp_iface.lower()
         community = getattr(router, 'snmp_community', 'public')
+        version = getattr(router, 'snmp_version', 'v2c')
         version_flag = '-v' + version.replace('v', '') if 'v' in version else '-v2c'
         walk_cmd = 'snmpwalk' if version_flag == '-v1' else 'snmpbulkwalk'
         
