@@ -360,9 +360,8 @@ def get_router_status(router):
             cmd = ['snmpget', version_flag]
             
             if version_flag == '-v3':
-                # For v3, we'd need more params, but for now we stick to v2c/v1 pattern for status
-                # unless explicitly configured. Using v2c as default for status check
-                cmd = ['snmpget', '-v2c', '-c', community]
+                # For v3, Net-SNMP uses -u for user. For Mikrotik, community often maps to security name
+                cmd.extend(['-u', community, '-l', 'noAuthNoPriv'])
             else:
                 cmd.extend(['-c', community])
                 
@@ -476,8 +475,8 @@ def get_router_interfaces(router):
             if version_flag != '-v3':
                 cmd.extend(['-c', community])
             else:
-                # Add V3 security params if needed, for now we fallback to community if v1/v2
-                cmd.extend(['-c', community]) # Mikrotik v3 often still uses community in some contexts or we need v3 params
+                # For v3, we use -u for user/community mapping
+                cmd.extend(['-u', community, '-l', 'noAuthNoPriv'])
                 
             cmd.extend(['-Onq', f"{snmp_host}:{snmp_port}", '1.3.6.1.2.1.2.2.1.2'])
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, timeout=5).decode('utf-8')
@@ -520,7 +519,7 @@ def get_router_traffic(router, override_iface=None):
         if version_flag != '-v3':
             cmd.extend(['-c', community])
         else:
-            cmd.extend(['-c', community]) # Fallback or add v3 params
+            cmd.extend(['-u', community, '-l', 'noAuthNoPriv'])
             
         cmd.extend(['-Onq', f"{snmp_host}:{snmp_port}", '1.3.6.1.2.1.2.2.1'])
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, timeout=5).decode('utf-8')
