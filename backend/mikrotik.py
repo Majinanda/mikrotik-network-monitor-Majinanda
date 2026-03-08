@@ -358,7 +358,17 @@ def get_router_status(router):
             
             # Use native snmpget to fetch sysDescr and sysUpTime
             # sysDescr = 1.3.6.1.2.1.1.1.0, sysUpTime = 1.3.6.1.2.1.1.3.0
-            cmd = ['snmpget', '-v2c', '-c', community, f"{snmp_host}:{snmp_port}", '1.3.6.1.2.1.1.1.0', '1.3.6.1.2.1.1.3.0']
+            version_flag = '-v' + version.replace('v', '') if 'v' in version else '-v2c'
+            cmd = ['snmpget', version_flag]
+            
+            if version_flag == '-v3':
+                # For v3, we'd need more params, but for now we stick to v2c/v1 pattern for status
+                # unless explicitly configured. Using v2c as default for status check
+                cmd = ['snmpget', '-v2c', '-c', community]
+            else:
+                cmd.extend(['-c', community])
+                
+            cmd.extend([f"{snmp_host}:{snmp_port}", '1.3.6.1.2.1.1.1.0', '1.3.6.1.2.1.1.3.0'])
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, timeout=3).decode('utf-8')
             
             # Simple parsing
@@ -460,10 +470,17 @@ def get_router_interfaces(router):
             snmp_host = getattr(router, 'snmp_host', None) or router.host
             snmp_port = getattr(router, 'snmp_port', 161)
             community = getattr(router, 'snmp_community', 'public')
-            version = getattr(router, 'snmp_version', 'v2c')
-            walk_cmd = 'snmpwalk' if version == 'v1' else 'snmpbulkwalk'
+            version_flag = '-v' + version.replace('v', '') if 'v' in version else '-v2c'
+            walk_cmd = 'snmpwalk' if version_flag == '-v1' else 'snmpbulkwalk'
             
-            cmd = [walk_cmd, '-v' + version.replace('v', ''), '-c', community, '-Onq', f"{snmp_host}:{snmp_port}", '1.3.6.1.2.1.2.2.1.2']
+            cmd = [walk_cmd, version_flag]
+            if version_flag != '-v3':
+                cmd.extend(['-c', community])
+            else:
+                # Add V3 security params if needed, for now we fallback to community if v1/v2
+                cmd.extend(['-c', community]) # Mikrotik v3 often still uses community in some contexts or we need v3 params
+                
+            cmd.extend(['-Onq', f"{snmp_host}:{snmp_port}", '1.3.6.1.2.1.2.2.1.2'])
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, timeout=5).decode('utf-8')
             
             lines = output.strip().split('\n')
@@ -495,11 +512,17 @@ def get_router_traffic(router, override_iface=None):
         snmp_iface = override_iface if override_iface else (getattr(router, 'snmp_interface', 'all') or 'all')
         snmp_iface = snmp_iface.lower()
         community = getattr(router, 'snmp_community', 'public')
-        version = getattr(router, 'snmp_version', 'v2c')
-        walk_cmd = 'snmpwalk' if version == 'v1' else 'snmpbulkwalk'
+        version_flag = '-v' + version.replace('v', '') if 'v' in version else '-v2c'
+        walk_cmd = 'snmpwalk' if version_flag == '-v1' else 'snmpbulkwalk'
         
         # We will use native snmpbulkwalk which fetches large tables 100x faster than standard walk
-        cmd = [walk_cmd, '-v' + version.replace('v', ''), '-c', community, '-Onq', f"{snmp_host}:{snmp_port}", '1.3.6.1.2.1.2.2.1']
+        cmd = [walk_cmd, version_flag]
+        if version_flag != '-v3':
+            cmd.extend(['-c', community])
+        else:
+            cmd.extend(['-c', community]) # Fallback or add v3 params
+            
+        cmd.extend(['-Onq', f"{snmp_host}:{snmp_port}", '1.3.6.1.2.1.2.2.1'])
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, timeout=5).decode('utf-8')
         
         # Parse the snmpwalk output
