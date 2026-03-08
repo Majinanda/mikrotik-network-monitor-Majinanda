@@ -8,7 +8,7 @@ Assume you are starting on a fresh Linux server:
 
 ```bash
 # 0. Install System Prerequisites (Common on Ubuntu/Debian)
-sudo apt update && sudo apt install -y python3-venv python3-pip git nodejs npm
+sudo apt update && sudo apt install -y python3-venv python3-pip git nodejs npm snmp
 
 # 1. Clone the repository
 git clone https://github.com/Majinanda/mikrotik-network-monitor-Majinanda.git
