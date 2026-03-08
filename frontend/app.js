@@ -28,6 +28,8 @@ let timeLeft = 900;
 let isRefreshing = false;
 let currentRouterId = 'all';
 let currentTrafficInterface = 'all';
+let allRouters = [];
+let isEditMode = false;
 
 // Dark Mode Toggle
 const themeToggle = document.getElementById('theme-toggle');
@@ -507,12 +509,12 @@ async function loadRouters() {
     try {
         const res = await fetch(`${API_BASE}/routers`, fetchOptions);
         if (res.ok) {
-            const routers = await res.json();
+            allRouters = await res.json();
             const select = document.getElementById('router-select');
             // Keep the 'all' option, remove others
             select.innerHTML = '<option value="all">All Routers</option>';
             
-            routers.forEach(r => {
+            allRouters.forEach(r => {
                 const opt = document.createElement('option');
                 opt.value = r.id;
                 opt.textContent = r.name;
@@ -529,10 +531,13 @@ document.getElementById('router-select').addEventListener('change', (e) => {
     currentRouterId = e.target.value;
     
     const deleteBtn = document.getElementById('delete-router-btn');
+    const editBtn = document.getElementById('edit-router-btn');
     if (localStorage.getItem('user_role') === 'admin' && currentRouterId !== 'all') {
         deleteBtn.classList.remove('hidden');
+        editBtn.classList.remove('hidden');
     } else {
         deleteBtn.classList.add('hidden');
+        editBtn.classList.add('hidden');
     }
     
     // Clear graph when switching routers
@@ -569,6 +574,7 @@ deleteRouterBtn.addEventListener('click', async () => {
             currentRouterId = 'all';
             document.getElementById('router-select').value = 'all';
             deleteRouterBtn.classList.add('hidden');
+            document.getElementById('edit-router-btn').classList.add('hidden');
             loadRouters();
             fetchDashboardData();
             startAutoRefresh();
@@ -581,6 +587,61 @@ deleteRouterBtn.addEventListener('click', async () => {
         console.error(e);
         alert("Network error occurred while deleting router.");
     }
+});
+
+// Edit Router Logic
+const editRouterBtn = document.getElementById('edit-router-btn');
+editRouterBtn.addEventListener('click', () => {
+    if (currentRouterId === 'all') return;
+    const router = allRouters.find(r => r.id == currentRouterId);
+    if (!router) return;
+
+    isEditMode = true;
+    document.querySelector('#add-router-modal h3').textContent = "Edit MikroTik Router";
+    document.getElementById('save-router-btn').innerHTML = "<span>Update Router</span>";
+
+    // Fill fields
+    document.getElementById('router-name').value = router.name;
+    document.getElementById('router-host').value = router.host;
+    document.getElementById('router-user').value = router.username || "";
+    document.getElementById('router-pass').value = ""; // Don't show password, let them overwrite if needed
+
+    document.getElementById('use-api').checked = router.use_api;
+    document.getElementById('api-port').value = router.api_port;
+    if (router.use_api) apiSettingsDiv.classList.remove('hidden'); else apiSettingsDiv.classList.add('hidden');
+
+    document.getElementById('use-ssh').checked = router.use_ssh;
+    document.getElementById('ssh-port').value = router.ssh_port;
+    document.getElementById('ssh-user').value = router.ssh_username || "";
+    document.getElementById('ssh-pass').value = "";
+    if (router.use_ssh) sshSettingsDiv.classList.remove('hidden'); else sshSettingsDiv.classList.add('hidden');
+
+    document.getElementById('use-snmp').checked = router.use_snmp;
+    document.getElementById('snmp-host').value = router.snmp_host || "";
+    document.getElementById('snmp-port').value = router.snmp_port;
+    document.getElementById('snmp-version').value = router.snmp_version;
+    document.getElementById('snmp-community').value = router.snmp_community || "";
+    document.getElementById('snmp-interface').value = router.snmp_interface || "all";
+    document.getElementById('snmp-username').value = router.snmp_username || "";
+    document.getElementById('snmp-auth-protocol').value = router.snmp_auth_protocol || "SHA";
+    document.getElementById('snmp-auth-password').value = "";
+    document.getElementById('snmp-priv-protocol').value = router.snmp_priv_protocol || "AES";
+    document.getElementById('snmp-priv-password').value = "";
+
+    if (router.use_snmp) {
+        snmpSettingsDiv.classList.remove('hidden');
+        if (router.snmp_version === 'v3') {
+            snmpV3SettingsDiv.classList.remove('hidden');
+            document.getElementById('snmp-community').classList.add('hidden');
+        } else {
+             snmpV3SettingsDiv.classList.add('hidden');
+             document.getElementById('snmp-community').classList.remove('hidden');
+        }
+    } else {
+        snmpSettingsDiv.classList.add('hidden');
+    }
+
+    addRouterModal.classList.remove('hidden');
 });
 
 // Dynamic Traffic Interface Selection
@@ -705,6 +766,9 @@ addRouterBtn.addEventListener('click', () => {
 const hideRouterModal = () => {
     addRouterModal.classList.add('hidden');
     addRouterForm.reset();
+    isEditMode = false;
+    document.querySelector('#add-router-modal h3').textContent = "Add MikroTik Router";
+    document.getElementById('save-router-btn').innerHTML = "<span>Save Router</span>";
     apiSettingsDiv.classList.remove('hidden'); // Default on
     sshSettingsDiv.classList.add('hidden');
     snmpSettingsDiv.classList.add('hidden');
@@ -761,8 +825,11 @@ addRouterForm.addEventListener('submit', async (e) => {
     };
     
     try {
-        const res = await fetch(`${API_BASE}/routers`, {
-            method: 'POST',
+        const url = isEditMode ? `${API_BASE}/routers/${currentRouterId}` : `${API_BASE}/routers`;
+        const method = isEditMode ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+            method: method,
             ...fetchOptions,
             headers: {
                 ...fetchOptions.headers,

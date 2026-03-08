@@ -262,6 +262,40 @@ def api_delete_router(router_id: int, db: Session = Depends(get_db), current_use
     db.commit()
     return {"message": "Router deleted"}
 
+@app.put("/api/routers/{router_id}")
+def api_update_router(router_id: int, router_data: RouterCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin_user)):
+    router = db.query(Router).filter(Router.id == router_id).first()
+    if not router:
+        raise HTTPException(status_code=404, detail="Router not found")
+    
+    router.name = router_data.name
+    router.host = router_data.host
+    if router_data.username: router.username = router_data.username
+    if router_data.password: router.password = router_data.password
+    
+    router.use_api = router_data.use_api
+    router.api_port = router_data.api_port
+    
+    router.use_ssh = router_data.use_ssh
+    router.ssh_port = router_data.ssh_port
+    if router_data.ssh_username: router.ssh_username = router_data.ssh_username
+    if router_data.ssh_password: router.ssh_password = router_data.ssh_password
+    
+    router.use_snmp = router_data.use_snmp
+    router.snmp_host = router_data.snmp_host
+    router.snmp_port = router_data.snmp_port
+    router.snmp_version = router_data.snmp_version
+    router.snmp_community = router_data.snmp_community
+    router.snmp_interface = router_data.snmp_interface
+    router.snmp_username = router_data.snmp_username
+    router.snmp_auth_protocol = router_data.snmp_auth_protocol
+    if router_data.snmp_auth_password: router.snmp_auth_password = router_data.snmp_auth_password
+    router.snmp_priv_protocol = router_data.snmp_priv_protocol
+    if router_data.snmp_priv_password: router.snmp_priv_password = router_data.snmp_priv_password
+    
+    db.commit()
+    return {"message": "Router updated successfully"}
+
 @app.get("/api/routers/{router_id}/interfaces")
 def api_get_router_interfaces(router_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     router = db.query(Router).filter(Router.id == router_id).first()
