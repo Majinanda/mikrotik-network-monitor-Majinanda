@@ -40,7 +40,9 @@ class Router(Base):
     # SNMPv3 Settings
     snmp_username = Column(String, nullable=True)
     snmp_auth_password = Column(String, nullable=True)
+    snmp_auth_protocol = Column(String, default="SHA") # MD5, SHA
     snmp_priv_password = Column(String, nullable=True) # For v3
+    snmp_priv_protocol = Column(String, default="AES") # DES, AES
 
 class ConnectionLog(Base):
     __tablename__ = "connection_logs"
@@ -111,11 +113,17 @@ def init_db():
                 conn.execute(text("ALTER TABLE routers ADD COLUMN snmp_version VARCHAR DEFAULT 'v2c'"))
                 conn.execute(text("ALTER TABLE routers ADD COLUMN snmp_username VARCHAR"))
                 conn.execute(text("ALTER TABLE routers ADD COLUMN snmp_auth_password VARCHAR"))
+                conn.execute(text("ALTER TABLE routers ADD COLUMN snmp_auth_protocol VARCHAR DEFAULT 'SHA'"))
                 conn.execute(text("ALTER TABLE routers ADD COLUMN snmp_priv_password VARCHAR"))
+                conn.execute(text("ALTER TABLE routers ADD COLUMN snmp_priv_protocol VARCHAR DEFAULT 'AES'"))
                 
             if "snmp_interface" not in cols:
                 conn.execute(text("ALTER TABLE routers ADD COLUMN snmp_interface VARCHAR DEFAULT 'all'"))
                 
+            if "snmp_auth_protocol" not in cols:
+                conn.execute(text("ALTER TABLE routers ADD COLUMN snmp_auth_protocol VARCHAR DEFAULT 'SHA'"))
+                conn.execute(text("ALTER TABLE routers ADD COLUMN snmp_priv_protocol VARCHAR DEFAULT 'AES'"))
+            
             if "ssh_username" not in cols:
                 # Add the isolated SSH fields
                 conn.execute(text("ALTER TABLE routers ADD COLUMN ssh_username VARCHAR"))

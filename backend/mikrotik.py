@@ -360,8 +360,20 @@ def get_router_status(router):
             cmd = ['snmpget', version_flag]
             
             if version_flag == '-v3':
-                # For v3, Net-SNMP uses -u for user. For Mikrotik, community often maps to security name
-                cmd.extend(['-u', community, '-l', 'noAuthNoPriv'])
+                # SNMPv3 logic
+                v3_user = getattr(router, 'snmp_username', None) or community or "admin"
+                auth_pass = getattr(router, 'snmp_auth_password', None)
+                auth_proto = getattr(router, 'snmp_auth_protocol', 'SHA')
+                priv_pass = getattr(router, 'snmp_priv_password', None)
+                priv_proto = getattr(router, 'snmp_priv_protocol', 'AES')
+                
+                cmd.extend(['-u', v3_user])
+                if priv_pass:
+                    cmd.extend(['-l', 'authPriv', '-a', auth_proto, '-A', auth_pass, '-x', priv_proto, '-X', priv_pass])
+                elif auth_pass:
+                    cmd.extend(['-l', 'authNoPriv', '-a', auth_proto, '-A', auth_pass])
+                else:
+                    cmd.extend(['-l', 'noAuthNoPriv'])
             else:
                 cmd.extend(['-c', community])
                 
@@ -472,11 +484,22 @@ def get_router_interfaces(router):
             walk_cmd = 'snmpwalk' if version_flag == '-v1' else 'snmpbulkwalk'
             
             cmd = [walk_cmd, version_flag]
-            if version_flag != '-v3':
-                cmd.extend(['-c', community])
+            if version_flag == '-v3':
+                v3_user = getattr(router, 'snmp_username', None) or community or "admin"
+                auth_pass = getattr(router, 'snmp_auth_password', None)
+                auth_proto = getattr(router, 'snmp_auth_protocol', 'SHA')
+                priv_pass = getattr(router, 'snmp_priv_password', None)
+                priv_proto = getattr(router, 'snmp_priv_protocol', 'AES')
+                
+                cmd.extend(['-u', v3_user])
+                if priv_pass:
+                    cmd.extend(['-l', 'authPriv', '-a', auth_proto, '-A', auth_pass, '-x', priv_proto, '-X', priv_pass])
+                elif auth_pass:
+                    cmd.extend(['-l', 'authNoPriv', '-a', auth_proto, '-A', auth_pass])
+                else:
+                    cmd.extend(['-l', 'noAuthNoPriv'])
             else:
-                # For v3, we use -u for user/community mapping
-                cmd.extend(['-u', community, '-l', 'noAuthNoPriv'])
+                cmd.extend(['-c', community])
                 
             cmd.extend(['-Onq', f"{snmp_host}:{snmp_port}", '1.3.6.1.2.1.2.2.1.2'])
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, timeout=5).decode('utf-8')
@@ -516,10 +539,22 @@ def get_router_traffic(router, override_iface=None):
         
         # We will use native snmpbulkwalk which fetches large tables 100x faster than standard walk
         cmd = [walk_cmd, version_flag]
-        if version_flag != '-v3':
-            cmd.extend(['-c', community])
+        if version_flag == '-v3':
+            v3_user = getattr(router, 'snmp_username', None) or community or "admin"
+            auth_pass = getattr(router, 'snmp_auth_password', None)
+            auth_proto = getattr(router, 'snmp_auth_protocol', 'SHA')
+            priv_pass = getattr(router, 'snmp_priv_password', None)
+            priv_proto = getattr(router, 'snmp_priv_protocol', 'AES')
+            
+            cmd.extend(['-u', v3_user])
+            if priv_pass:
+                cmd.extend(['-l', 'authPriv', '-a', auth_proto, '-A', auth_pass, '-x', priv_proto, '-X', priv_pass])
+            elif auth_pass:
+                cmd.extend(['-l', 'authNoPriv', '-a', auth_proto, '-A', auth_pass])
+            else:
+                cmd.extend(['-l', 'noAuthNoPriv'])
         else:
-            cmd.extend(['-u', community, '-l', 'noAuthNoPriv'])
+            cmd.extend(['-c', community])
             
         cmd.extend(['-Onq', f"{snmp_host}:{snmp_port}", '1.3.6.1.2.1.2.2.1'])
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, timeout=5).decode('utf-8')

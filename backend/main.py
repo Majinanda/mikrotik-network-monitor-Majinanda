@@ -194,7 +194,9 @@ class RouterCreate(BaseModel):
     snmp_interface: Optional[str] = "all"
     snmp_username: Optional[str] = None
     snmp_auth_password: Optional[str] = None
+    snmp_auth_protocol: str = "SHA"
     snmp_priv_password: Optional[str] = None
+    snmp_priv_protocol: str = "AES"
 
 @app.get("/api/routers")
 def api_get_routers(db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
@@ -214,7 +216,9 @@ def api_get_routers(db: Session = Depends(get_db), current_user: User = Depends(
         "snmp_version": r.snmp_version,
         "snmp_community": r.snmp_community,
         "snmp_interface": r.snmp_interface,
-        "snmp_username": r.snmp_username
+        "snmp_username": r.snmp_username,
+        "snmp_auth_protocol": r.snmp_auth_protocol,
+        "snmp_priv_protocol": r.snmp_priv_protocol
         # Deliberately omitting passwords in GET
     } for r in routers]
 
@@ -239,7 +243,9 @@ def api_create_router(router_data: RouterCreate, db: Session = Depends(get_db), 
         snmp_interface=router_data.snmp_interface,
         snmp_username=router_data.snmp_username,
         snmp_auth_password=router_data.snmp_auth_password,
+        snmp_auth_protocol=router_data.snmp_auth_protocol,
         snmp_priv_password=router_data.snmp_priv_password,
+        snmp_priv_protocol=router_data.snmp_priv_protocol,
         is_active=True
     )
     db.add(new_router)

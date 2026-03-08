@@ -271,7 +271,17 @@
                                 <div id="snmp-v3-settings" class="space-y-2 hidden">
                                     <input type="text" id="snmp-username" class="w-full px-2 py-1 text-sm rounded-lg border dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="SNMPv3 Username">
                                     <div class="grid grid-cols-2 gap-2">
+                                        <select id="snmp-auth-protocol" class="w-full px-2 py-1 text-sm rounded-lg border dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                            <option value="MD5">MD5</option>
+                                            <option value="SHA" selected>SHA</option>
+                                        </select>
                                         <input type="password" id="snmp-auth-password" class="w-full px-2 py-1 text-sm rounded-lg border dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Auth Password">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <select id="snmp-priv-protocol" class="w-full px-2 py-1 text-sm rounded-lg border dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                            <option value="DES">DES</option>
+                                            <option value="AES" selected>AES</option>
+                                        </select>
                                         <input type="password" id="snmp-priv-password" class="w-full px-2 py-1 text-sm rounded-lg border dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 placeholder-gray-400" placeholder="Priv Password">
                                     </div>
                                 </div>

@@ -754,7 +754,9 @@ addRouterForm.addEventListener('submit', async (e) => {
         snmp_community: document.getElementById('snmp-community').value || "",
         snmp_interface: document.getElementById('snmp-interface').value || "all",
         snmp_username: document.getElementById('snmp-username').value || "",
+        snmp_auth_protocol: document.getElementById('snmp-auth-protocol').value || "SHA",
         snmp_auth_password: document.getElementById('snmp-auth-password').value || "",
+        snmp_priv_protocol: document.getElementById('snmp-priv-protocol').value || "AES",
         snmp_priv_password: document.getElementById('snmp-priv-password').value || ""
     };
     
