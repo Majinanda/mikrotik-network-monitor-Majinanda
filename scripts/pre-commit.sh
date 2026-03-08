@@ -13,6 +13,11 @@ FORBIDDEN_FILES=(".env" "mikrotik_dashboard.db" ".pem" ".key")
 STAGED_FILES=$(git diff --cached --name-only)
 
 for file in $STAGED_FILES; do
+    # Skip example/template files
+    if [[ "$file" == *".example"* ]] || [[ "$file" == *".template"* ]]; then
+        continue
+    fi
+    
     for forbidden in "${FORBIDDEN_FILES[@]}"; do
         if [[ "$file" == *"$forbidden"* ]]; then
             echo "❌ ERROR: You are trying to commit a sensitive file: $file"

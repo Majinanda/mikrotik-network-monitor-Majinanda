@@ -11,7 +11,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logger = logging.getLogger("mikrotik")
-fh = logging.FileHandler("/home/ubuntu/dashboard/backend/snmp_debug.log")
+# Use a relative path for the log file
+# (This is a persistent connection pool with thread safety)
+log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "snmp_debug.log")
+fh = logging.FileHandler(log_path)
 fh.setLevel(logging.ERROR)
 logger.addHandler(fh)
 # Note: we no longer depend on global env variables for the router credentials

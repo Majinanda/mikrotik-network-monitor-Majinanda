@@ -7,9 +7,12 @@ A real-time, high-performance monitoring dashboard for MikroTik routers. Track P
 Assume you are starting on a fresh Linux server:
 
 ```bash
+# 0. Install System Prerequisites (Common on Ubuntu/Debian)
+sudo apt update && sudo apt install -y python3-venv python3-pip git nodejs npm
+
 # 1. Clone the repository
 git clone https://github.com/Majinanda/mikrotik-network-monitor-Majinanda.git
-cd mikrotik-pppoe-dashboard
+cd mikrotik-network-monitor-Majinanda
 
 # 2. Setup Environment
 cp backend/.env.example backend/.env
@@ -47,4 +50,3 @@ npm start
 - Python 3.8+
 - Node.js & NPM (for project management)
 - MikroTik Router with API (8728) or SNMP enabled.
-# mikrotik-network-monitor-Majinanda
